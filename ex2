@@ -1,0 +1,133 @@
+# ================================
+# E2: Implementation of Logic Gates using Perceptron
+# ================================
+
+# Step 1: Import required library
+import numpy as np  # Used for vector/matrix operations
+
+# Step 2: Define the unit step activation function
+
+# Activation function for perceptron:
+# Returns 1 if input >= 0, else returns 0 (i.e., threshold logic)
+def unitStepActivation(v):
+    if v >= 0:
+        return 1
+    else:
+        return 0
+
+# Step 3: Define the general perceptron model
+
+# General model for a single-layer perceptron
+# Takes input vector x, weight vector w, and bias b
+# Applies weighted sum and passes result through activation function
+def perceptronModel(x, w, b):
+    v = np.dot(w, x) + b      # Linear combination: w.x + b
+    y = unitStepActivation(v) # Apply step activation function
+    return y
+
+# ------------------- AND Gate -------------------
+
+# Step 4: Define the AND logic gate using perceptron
+
+# Logic: AND outputs 1 only when both inputs are 1
+# Weights = [1, 1], Bias = -1.5
+# Dot product must be >= 0 only when x = [1, 1]
+def AND_function(x):
+    w = np.array([1, 1])  # Assign weights
+    b = -1.5              # Set bias
+    return perceptronModel(x, w, b)
+
+# Step 5: Test all combinations of inputs for AND gate
+
+test1 = np.array([0,0])  # Input: 0 AND 0
+test2 = np.array([0,1])  # Input: 0 AND 1
+test3 = np.array([1,0])  # Input: 1 AND 0
+test4 = np.array([1,1])  # Input: 1 AND 1
+
+# Evaluate the perceptron for each input
+y1 = AND_function(test1)
+y2 = AND_function(test2)
+y3 = AND_function(test3)
+y4 = AND_function(test4)
+
+# Step 6: Print outputs for AND gate
+
+print("AND output for 0,0:", y1)
+print("AND output for 0,1:", y2)
+print("AND output for 1,0:", y3)
+print("AND output for 1,1:", y4)
+
+# ------------------- OR Gate -------------------
+
+# Step 7: Define the OR logic gate using perceptron
+
+# Logic: OR outputs 1 when at least one input is 1
+# Weights = [1, 1], Bias = -0.5
+# Dot product must be >= 0 if any input is 1
+def OR_function(x):
+    w = np.array([1, 1])  # Assign weights
+    b = -0.5              # Set bias
+    return perceptronModel(x, w, b)
+
+# Step 8: Test all combinations of inputs for OR gate
+
+test1 = np.array([0,0])  # Input: 0 OR 0
+test2 = np.array([0,1])  # Input: 0 OR 1
+test3 = np.array([1,0])  # Input: 1 OR 0
+test4 = np.array([1,1])  # Input: 1 OR 1
+
+# Evaluate the perceptron for each input
+y1 = OR_function(test1)
+y2 = OR_function(test2)
+y3 = OR_function(test3)
+y4 = OR_function(test4)
+
+# Step 9: Print outputs for OR gate
+
+print("OR output for 0,0:", y1)
+print("OR output for 0,1:", y2)
+print("OR output for 1,0:", y3)
+print("OR output for 1,1:", y4)
+
+# ------------------- NAND Gate -------------------
+
+# Step 10: Define the NAND logic gate using perceptron
+
+# Logic: NAND outputs 0 only when both inputs are 1
+# Weights = [-1, -1], Bias = 1.5
+# Output is 1 unless input is [1,1]
+def NAND_function(x):
+    w = np.array([-1, -1])  # Assign weights
+    b = 1.5                 # Set bias
+    return perceptronModel(x, w, b)
+
+# Step 11: Test all combinations of inputs for NAND gate
+
+test1 = np.array([0,0])  # Input: 0 NAND 0
+test2 = np.array([0,1])  # Input: 0 NAND 1
+test3 = np.array([1,0])  # Input: 1 NAND 0
+test4 = np.array([1,1])  # Input: 1 NAND 1
+
+# Evaluate the perceptron for each input
+y1n = NAND_function(test1)
+y2n = NAND_function(test2)
+y3n = NAND_function(test3)
+y4n = NAND_function(test4)
+
+# Step 12: Print outputs for NAND gate
+
+print("NAND output for 0,0:", y1n)
+print("NAND output for 0,1:", y2n)
+print("NAND output for 1,0:", y3n)
+print("NAND output for 1,1:", y4n)
+
+# ------------------- AND using NAND and OR -------------------
+
+# Step 13: Combine NAND and OR outputs to simulate AND gate again
+
+# Multiplying output of NAND and OR can simulate AND behavior
+# Logic: (A NAND B) * (A OR B)
+print("Final AND (NAND * OR) output for 0,0:", y1n * y1)
+print("Final AND (NAND * OR) output for 0,1:", y2n * y2)
+print("Final AND (NAND * OR) output for 1,0:", y3n * y3)
+print("Final AND (NAND * OR) output for 1,1:", y4n * y4)
