@@ -1,0 +1,64 @@
+# Import necessary libraries
+import numpy as np
+import tensorflow as tf
+from tensorflow import keras
+from keras.models import Sequential
+from keras.layers import Dense, LSTM, Embedding, Dropout
+from keras.datasets import imdb
+from keras.preprocessing.sequence import pad_sequences
+
+# Step 1: Load the IMDB dataset
+# Keep only the top 5000 most frequent words
+(X_train, y_train), (X_test, y_test) = imdb.load_data(num_words=5000)
+
+# Step 2: Pad sequences to make all reviews of equal length
+# This is required because LSTM requires fixed input shape
+max_review_length = 500  # Set max length of reviews
+X_train = pad_sequences(X_train, maxlen=max_review_length)
+X_test = pad_sequences(X_test, maxlen=max_review_length)
+
+# Step 3: Create the LSTM model
+embedding_vector = 32  # Size of the word embedding vector
+
+model = Sequential()
+
+# Add an embedding layer: Converts word indices into dense vectors
+model.add(Embedding(input_dim=5000, output_dim=embedding_vector, input_length=max_review_length))
+
+# Add an LSTM layer with 100 memory units
+model.add(LSTM(100))
+
+# Add an output layer with sigmoid activation (for binary classification)
+model.add(Dense(1, activation='sigmoid'))
+
+# Step 4: Compile the model
+# Binary cross-entropy is used for binary classification
+model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
+
+# Step 5: Train the model
+# Batch size = 64, Epochs = 10
+model.fit(X_train, y_train, epochs=10, batch_size=64)
+
+# Step 6: Evaluate the model on test data
+scores = model.evaluate(X_test, y_test, verbose=0)
+print("Accuracy: %.2f%%" % (scores[1]*100))  # Print accuracy
+
+# Step 7: Confusion Matrix
+from sklearn.metrics import confusion_matrix
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Predict labels for the test set
+y_pred = model.predict(X_test)
+y_pred_labels = (y_pred > 0.5).astype(int)  # Convert probabilities to binary labels (0 or 1)
+
+# Generate confusion matrix
+conf_matrix = confusion_matrix(y_test, y_pred_labels)
+
+# Plot the confusion matrix
+plt.figure(figsize=(8, 6))
+sns.heatmap(conf_matrix, annot=True, fmt="d", cmap="Blues", cbar=False)
+plt.xlabel('Predicted Labels')
+plt.ylabel('True Labels')
+plt.title('Confusion Matrix')
+plt.show()
