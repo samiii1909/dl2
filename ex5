@@ -1,0 +1,96 @@
+import tensorflow_datasets as tfds
+import tensorflow as tf
+import matplotlib.pyplot as plt
+
+(train_ds,train_labels),(test_ds,test_labels)= tfds.load(
+    "tf_flowers",
+    split=["train[:70%]","train[:30%]"], #train test split
+    batch_size=-1,
+    as_supervised=True,#include labels
+    )
+
+print('Train dataset shape:',train_ds.shape)
+print('Train labels shape:',train_labels.shape)
+print('Test dataset shape:',test_ds.shape)
+print('Test labels shape:',test_labels.shape)
+print("Datatype of image:",train_ds.dtype)
+print("Datatype of labels:",train_labels.dtype)
+ds_info=tfds.builder("tf_flowers").info
+class_names=ds_info.features["label"].names
+print("Class names:",class_names)
+plt.figure(figsize=(10,10))
+for i in range(9):
+  ax=plt.subplot(3,3,i+1)
+  plt.imshow(train_ds[i].numpy().astype("uint8"))
+  plt.title(class_names[train_labels[i].numpy()])
+  plt.axis("off")
+
+  train_ds.shape
+plt.imshow(train_ds[30])
+plt.imshow(train_ds[6])
+plt.imshow(train_ds[50])
+plt.imshow(train_ds[88])
+
+  train_ds = tf.image.resize(train_ds,(150,150))
+  test_ds = tf.image.resize(test_ds,(150,150))
+
+  train_labels=tf.keras.utils.to_categorical(train_labels,num_classes=5)
+  test_labels=tf.keras.utils.to_categorical(test_labels,num_classes=5)
+
+from tensorflow.keras.applications.vgg16 import VGG16
+from tensorflow.keras.applications.vgg16 import preprocess_input
+
+base_model=VGG16(weights="imagenet",include_top=False,input_shape=train_ds[0].shape)
+base_model.trainable=False
+#pre processing input
+train_ds= preprocess_input(train_ds)
+test_ds= preprocess_input(test_ds)
+
+base_model.summary()
+
+from tensorflow.keras import layers, models
+from tensorflow.keras.layers import Dropout
+flattern_layer = layers.Flatten()
+dense_layer_1 = layers.Dense(50, activation='relu')
+dense_layer_2 = layers.Dense(50, activation='relu')
+prediction_layer = layers.Dense(5, activation='softmax')
+model = models.Sequential([
+    base_model,
+    flattern_layer,
+    dense_layer_1,
+    dense_layer_2,
+    layers.Dropout(0.2),
+    prediction_layer
+])
+
+import tensorflow_datasets as tfds
+import tensorflow as tf
+import matplotlib.pyplot as plt
+
+# Load the dataset and define train_ds
+(train_ds,train_labels),(test_ds,test_labels)= tfds.load(
+    "tf_flowers",
+    split=["train[:70%]","train[:30%]"], #train test split
+    batch_size=-1,
+    as_supervised=True,#include labels
+    )
+# Resize images before preprocessing
+train_ds = tf.image.resize(train_ds, (150, 150))
+test_ds = tf.image.resize(test_ds, (150, 150))
+
+
+# Now you can import VGG16 and preprocess
+from tensorflow.keras.applications.vgg16 import VGG16
+from tensorflow.keras.applications.vgg16 import preprocess_input
+base_model=VGG16(weights="imagenet",include_top=False,input_shape=train_ds[0].shape)
+base_model.trainable=False
+# Preprocessing input
+train_ds= preprocess_input(train_ds)
+test_ds= preprocess_input(test_ds)
+from tensorflow.keras.applications.vgg16 import VGG16
+from tensorflow.keras.applications.vgg16 import preprocess_input
+base_model=VGG16(weights="imagenet",include_top=False,input_shape=train_ds[0].shape)
+base_model.trainable=False
+#pre processing input
+train_ds= preprocess_input(train_ds)
+test_ds= preprocess_input(test_ds)
