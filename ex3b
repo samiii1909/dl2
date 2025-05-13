@@ -1,0 +1,79 @@
+import tensorflow as tf
+import matplotlib.pyplot as plt
+import numpy as np
+from tensorflow.keras.utils import plot_model
+#Load MNIST dataset
+(trainX,trainY),(testX,testY) = tf.keras.datasets.mnist.load_data()
+#check shape of input image and label(x,y)---(trainx,trainy)(testx,testy)
+plt.imshow(trainX[0])  #train set image
+trainY[0]    #train set/labeol
+#total 60,000 image each has size 28x28
+#print 4 images in a row
+plt.figure(figsize=(10,5))
+for i in range(4):
+    plt.subplot(1,4,i+1)
+    plt.imshow(trainX[i],cmap='gray')
+    plt.title(f"Label: {trainY[i]}")
+    plt.axis('off')
+    plt.tight_layout()
+    plt.show()
+plt.imshow(testX[0])   #test the set image
+testY[0]    #test label
+trainX.shape
+#each has 10,000 image so
+testX.shape
+
+#use one hot encoding to convert into 10 classes(0-9)
+trainY=tf.keras.utils.to_categorical(trainY,num_classes=10)
+testY=tf.keras.utils.to_categorical(testY,num_classes=10)
+trainY[0]   #output is array as hot encoding is done 6th bit is 1
+#trainY[1]
+#trainY[2]
+#trainY[3]
+#define sequential keras model(one output and one input tensor)
+model=tf.keras.models.Sequential()
+#reshape input image into column matrix(28*28)--(784*1)because we have
+#hidden layers so inputs are 784*1 i.e 784 inputs pixel intensities acts as
+#features
+model.add(tf.keras.layers.Reshape((784,),input_shape=(28,28,)))
+model.add(tf.keras.layers.BatchNormalization())       #normalization divide intensity
+#add layers with activation function Relu  # add 3 dense layers
+model.add(tf.keras.layers.Dense(100,activation='relu'))   #100-100 neurons
+#model.output
+model.add(tf.keras.layers.Dense(100,activation='relu'))
+#model.output
+model.add(tf.keras.layers.Dense(100,activation='relu'))
+#model.output
+#last layer having 10 neurons=10 classes as classifier with activation function
+model.add(tf.keras.layers.Dense(10,activation='softmax'))
+#perform model summary
+model.summary()
+plot_model(model,show_shapes=True,show_layer_names=True)
+#compile model
+model.compile(optimizer='sgd',loss='categorical_crossentropy',metrics=['accuracy']) #sgd=socastic gradient
+#check for epochs(iteration)validations =some part of test can be given
+history=model.fit(trainX,trainY,validation_data=(testX,testY),epochs=3)
+#plot loass & accuracy
+fig,axs=plt.subplots(1,2,figsize=(12,5))
+
+#plot loss
+axs[0].plot(history.history['loss'],label='Training loss')
+axs[1].plot(history.history['val_loss'],label='validation loss')
+axs[0].set_title('Loss Curve')
+axs[0].set_xlabel('Epochs')
+axs[0].set_ylabel('Loss')
+axs[0].legend()
+axs[1].set_title('Validation Loss Curve')
+axs[1].set_xlabel('Epochs')
+axs[1].set_ylabel('valiadation loss')
+axs[1].legend()
+
+#check for epochs(iterations)validations =some part of test can be given
+model.fit(trainX,trainY,validation_data=(testX,testY),epochs=3)
+model.predict(testX[:1])  #10 bit outputi.e probability  #1st test image is 7 so it is
+model.predict(testX[:2])
+testY[:1]   #ground truth 7th bit is high
+plt.imshow(testX[0])
+plt.imshow(testX[1])
+scores=model.evaluate(testX,testY)
+print("Accuracy:%.2f%%" %(scores[1]*100))
