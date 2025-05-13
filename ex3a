@@ -1,0 +1,138 @@
+# ===============================================
+# E3A: Classification using MLP and Backpropagation
+# ===============================================
+
+# Import Required Libraries
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Step 1: XOR Inputs and Outputs
+# Define input and output for XOR gate
+# x has shape (2, 4) => 2 features, 4 examples
+# y has shape (1, 4) => 1 output per example
+x = np.array([[0, 0, 1, 1], 
+              [0, 1, 0, 1]])  # Inputs: (0,0), (0,1), (1,0), (1,1)
+y = np.array([[0, 1, 1, 0]])  # Expected XOR outputs
+
+# Step 2: Define Network Architecture
+n_x = 2      # Number of input neurons
+n_h = 2      # Number of hidden layer neurons (can be tuned)
+n_y = 1      # Number of output neurons
+m = x.shape[1]  # Number of training examples
+lr = 0.1     # Learning rate
+
+# Step 3: Initialize weights with random values
+np.random.seed(2)          # For reproducibility
+w1 = np.random.rand(n_h, n_x)  # Weights from input to hidden layer
+w2 = np.random.rand(n_y, n_h)  # Weights from hidden to output layer
+
+# Step 4: Define the Sigmoid Activation Function
+# This function introduces non-linearity
+def sigmoid(z):
+    return 1 / (1 + np.exp(-z))
+
+# Step 5: Forward Propagation Function
+# Computes output of network given current weights and input
+def forward_prop(w1, w2, x):
+    z1 = np.dot(w1, x)       # Linear combination at hidden layer
+    a1 = sigmoid(z1)         # Activation at hidden layer
+    z2 = np.dot(w2, a1)      # Linear combination at output layer
+    a2 = sigmoid(z2)         # Activation at output layer (final output)
+    return z1, a1, z2, a2
+
+# Step 6: Backward Propagation Function
+# Computes gradients for all weights using chain rule
+def back_prop(m, w1, w2, z1, a1, z2, a2, y):
+    dz2 = a2 - y                         # Derivative of loss w.r.t. z2
+    dw2 = np.dot(dz2, a1.T) / m         # Gradient of output weights
+    dz1 = np.dot(w2.T, dz2) * a1 * (1 - a1)  # Derivative of loss w.r.t. z1
+    dw1 = np.dot(dz1, x.T) / m          # Gradient of hidden weights
+    return dz2, dw2.reshape(w2.shape), dz1, dw1.reshape(w1.shape)
+
+# Step 7: Training Loop
+# Loop over many iterations and update weights
+iterations = 10000
+losses = []        # To record loss over time
+dw1_grads = []     # Gradient magnitude for w1
+dw2_grads = []     # Gradient magnitude for w2
+w1_changes = []    # Weight update magnitude for w1
+w2_changes = []    # Weight update magnitude for w2
+
+for i in range(iterations):
+    # Forward pass
+    z1, a1, z2, a2 = forward_prop(w1, w2, x)
+
+    # Binary Cross Entropy Loss
+    loss = -(1 / m) * np.sum(y * np.log(a2) + (1 - y) * np.log(1 - a2))
+    losses.append(loss)  # Save current loss
+
+    # Backward pass
+    dz2, dw2, dz1, dw1 = back_prop(m, w1, w2, z1, a1, z2, a2, y)
+
+    # Record gradient norms (for monitoring convergence)
+    dw1_grads.append(np.linalg.norm(dw1))
+    dw2_grads.append(np.linalg.norm(dw2))
+
+    # Record how much weights change at each step
+    w1_changes.append(np.linalg.norm(lr * dw1))
+    w2_changes.append(np.linalg.norm(lr * dw2))
+
+    # Gradient Descent: Update weights
+    w2 -= lr * dw2
+    w1 -= lr * dw1
+
+# Step 8: Plot Loss over Epochs
+plt.figure(figsize=(6, 4))
+plt.plot(losses, color='red')
+plt.xlabel("Epochs")
+plt.ylabel("Loss")
+plt.title("Loss over Epochs")
+plt.grid(True)
+plt.show()
+
+# Step 9: Plot Weight Changes in Hidden Layer
+plt.figure(figsize=(6, 4))
+plt.plot(w1_changes, color='blue')
+plt.xlabel("Epochs")
+plt.ylabel("L2 Norm of Δw1")
+plt.title("Hidden Layer Weight Change Over Epochs")
+plt.grid(True)
+plt.show()
+
+# Step 10: Plot Weight Changes in Output Layer
+plt.figure(figsize=(6, 4))
+plt.plot(w2_changes, color='green')
+plt.xlabel("Epochs")
+plt.ylabel("L2 Norm of Δw2")
+plt.title("Output Layer Weight Change Over Epochs")
+plt.grid(True)
+plt.show()
+
+# Step 11: Plot Gradient Magnitudes (to see if gradients vanish or explode)
+plt.figure(figsize=(6, 4))
+plt.plot(dw1_grads, label='Gradient Norm of dw1 (Hidden)', color='purple')
+plt.plot(dw2_grads, label='Gradient Norm of dw2 (Output)', color='orange')
+plt.xlabel("Epochs")
+plt.ylabel("Gradient L2 Norm")
+plt.title("Gradient Changes Over Epochs")
+plt.legend()
+plt.grid(True)
+plt.show()
+
+# Step 12: Prediction Function
+# Takes trained weights and makes prediction for one input
+def predict(w1, w2, input):
+    z1, a1, z2, a2 = forward_prop(w1, w2, input)
+    a2 = np.squeeze(a2)  # Convert from array to scalar
+    if a2 >= 0.5:
+        print("For input", [i[0] for i in input], "output is 1")
+    else:
+        print("For input", [i[0] for i in input], "output is 0")
+
+# Step 13: Predictions for all XOR Inputs
+# Verify if the trained MLP has learned the XOR function
+for test in [np.array([[0], [0]]),
+             np.array([[0], [1]]),
+             np.array([[1], [0]]),
+             np.array([[1], [1]])]:
+    predict(w1, w2, test)
