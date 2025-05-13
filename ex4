@@ -1,0 +1,114 @@
+# Import necessary libraries
+import tensorflow as tf
+import numpy as np
+import matplotlib.pyplot as plt
+from tensorflow.keras.datasets import mnist
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Dropout
+from tensorflow.keras.utils import plot_model
+from google.colab import drive
+
+# Mount Google Drive to save the trained model
+drive.mount('/content/drive')
+
+# Load MNIST dataset (handwritten digits)
+(x_train, y_train), (x_test, y_test) = mnist.load_data()
+
+# Normalize pixel values to a range of 0 to 1 by dividing by 255
+x_train, x_test = x_train / 255.0, x_test / 255.0
+
+# Reshape the input data to fit the shape required by CNN (28x28 images with 1 color channel)
+x_train = x_train.reshape(-1, 28, 28, 1)
+x_test = x_test.reshape(-1, 28, 28, 1)
+
+# Convert labels to one-hot encoding (10 classes, one for each digit)
+y_train = tf.keras.utils.to_categorical(y_train, 10)
+y_test = tf.keras.utils.to_categorical(y_test, 10)
+
+# Build a CNN model using Sequential API
+model = Sequential([
+    # First convolutional layer with 32 filters of size 3x3, ReLU activation, and input shape (28x28x1)
+    Conv2D(32, (3, 3), activation='relu', input_shape=(28, 28, 1)),
+    # Max-pooling layer with a pool size of 2x2
+    MaxPooling2D(2, 2),
+
+    # Second convolutional layer with 64 filters of size 3x3 and ReLU activation
+    Conv2D(64, (3, 3), activation='relu'),
+    # Max-pooling layer with a pool size of 2x2
+    MaxPooling2D(2, 2),
+
+    # Flatten the 2D data into a 1D vector to feed it into fully connected layers
+    Flatten(),
+
+    # Fully connected layer with 128 neurons and ReLU activation
+    Dense(128, activation='relu'),
+
+    # Dropout layer to reduce overfitting (50% chance of dropping units)
+    Dropout(0.5),
+
+    # Output layer with 10 neurons (one for each class), using softmax activation for multi-class classification
+    Dense(10, activation='softmax')
+])
+
+# Print the model architecture summary (layer types, shapes, and parameters)
+model.summary()
+
+# Visualize the model architecture in a diagram
+plot_model(model, show_shapes=True, show_layer_names=True)
+
+# Compile the model with Adam optimizer, categorical crossentropy loss, and accuracy metric
+model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+
+# Train the model on the training data and validate on the test data for 10 epochs with batch size of 64
+model.fit(x_train, y_train, validation_data=(x_test, y_test), epochs=10, batch_size=64)
+
+# Evaluate the model performance on the test data
+test_loss, test_acc = model.evaluate(x_test, y_test)
+print(f"Test Accuracy: {test_acc * 100:.2f}%")
+
+# Save the trained model to Google Drive
+model.save("/content/drive/My Drive/mnist_cnn.h5")
+print("Model saved successfully!")
+
+# Predict the first 10 images from the test set
+predictions = model.predict(x_test[:10])
+
+# Plot the test images with their predicted labels
+fig, axes = plt.subplots(2, 5, figsize=(10, 5))
+for i, ax in enumerate(axes.flat):
+    ax.imshow(x_test[i].reshape(28, 28), cmap="gray")  # Show image in grayscale
+    ax.set_title(f"Predicted: {np.argmax(predictions[i])}")  # Display predicted label
+    ax.axis("off")  # Remove axes for clarity
+plt.show()
+
+# Visualize the model architecture once again
+plot_model(model, show_shapes=True, show_layer_names=True)
+
+# Train the model again for 10 epochs and save the training history
+history = model.fit(x_train, y_train, validation_data=(x_test, y_test), epochs=10, batch_size=64)
+
+# Plot the training and validation loss over epochs to observe the model's performance
+plt.figure(figsize=(8, 6))
+plt.plot(history.history['loss'], label='Training Loss')
+plt.plot(history.history['val_loss'], label='Validation Loss')
+plt.title('Training and Validation Loss')
+plt.xlabel('Epochs')
+plt.ylabel('Loss')
+plt.legend()
+plt.show()
+
+# Visualize the model architecture again
+plot_model(model, show_shapes=True, show_layer_names=True)
+
+# Train the model again for an additional 10 epochs and save the history object
+history = model.fit(x_train, y_train, validation_data=(x_test, y_test), epochs=10, batch_size=64)
+
+# Plot training and validation loss once more to observe changes
+plt.figure(figsize=(8, 6))
+plt.plot(history.history['loss'], label='Training Loss')
+plt.plot(history.history['val_loss'], label='Validation Loss')
+plt.title('Training and Validation Loss')
+plt.xlabel('Epochs')
+plt.ylabel('Loss')
+plt.legend()
+plt.show()
