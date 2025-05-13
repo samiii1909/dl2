@@ -1,0 +1,69 @@
+# Step 1: Import required libraries
+from keras.models import Sequential
+import numpy as np
+from keras.layers import Dense, SimpleRNN
+import matplotlib.pyplot as plt
+
+# Step 2: Define a function to create an RNN model
+def create_RNN(hidden_units, dense_units, input_shape, activation):
+    model = Sequential()
+    # Add a SimpleRNN layer with specified hidden units and activation
+    model.add(SimpleRNN(hidden_units, input_shape=input_shape, activation=activation[0]))
+    # Add a dense output layer
+    model.add(Dense(units=dense_units, activation=activation[1]))
+    # Compile the model with MSE loss and Adam optimizer
+    model.compile(loss='mean_squared_error', optimizer='adam')
+    return model
+
+# Step 3: Create a demonstration RNN model with:
+# 2 hidden units, 1 output neuron, input shape (3 timesteps, 1 feature), and linear activation
+demo_model = create_RNN(2, 1, (3, 1), activation=['linear', 'linear'])
+
+# Step 4: Prepare input data as a NumPy array of shape (1, 3, 1)
+x = np.array([3, 3, 3])
+x_input = np.reshape(x, (1, 3, 1))  # Reshape to (1, 3, 1)
+
+# Step 5: Perform prediction using the demo model
+y_pred_model = demo_model.predict(x_input)
+
+# Step 6: Extract and print model weights
+wx = demo_model.get_weights()[0]  # Input-to-hidden weights
+wh = demo_model.get_weights()[1]  # Hidden-to-hidden weights (recurrent)
+bh = demo_model.get_weights()[2]  # Hidden bias
+wy = demo_model.get_weights()[3]  # Hidden-to-output weights
+by = demo_model.get_weights()[4]  # Output bias
+
+print('wx =', wx)
+print('wh =', wh)
+print('bh =', bh)
+print('wy =', wy)
+print('by =', by)
+
+# Step 7: Manually simulate the RNN forward pass to verify internal computation
+print("Input x:", x)
+x_input = np.reshape(x, (1, 3, 1))  # Reshaped Input
+print("Reshaped Input x_input:", x_input)
+
+# Predict again for comparison
+y_pred_model = demo_model.predict(x_input)
+
+# Step 8: Initialize hidden state with zeros (h0)
+m = 2  # Number of hidden units
+h0 = np.zeros(m)  # Initialize hidden state with zeros (h0 = np.zeros(m))
+
+# Step 9: Compute hidden states and output manually
+# Hidden layer computations using RNN recurrence:
+h1 = np.dot(x[0], wx) + np.dot(h0, wh) + bh
+h2 = np.dot(x[1], wx) + np.dot(h1, wh) + bh
+h3 = np.dot(x[2], wx) + np.dot(h2, wh) + bh
+
+# Output layer computation
+o3 = np.dot(h3, wy) + by
+
+# Step 10: Print all internal hidden states and output
+print('h0 =', h0)
+print('h1 =', h1)
+print('h2 =', h2)
+print('h3 =', h3)
+print("Prediction from Keras model:", y_pred_model)
+print("Prediction from manual computation:", o3)
