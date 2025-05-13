@@ -1,0 +1,165 @@
+# ================================
+# E1: Introduction and Mathematical Operations using TensorFlow and Keras
+# ================================
+
+# Step 1: Basic Tensor Addition with TensorFlow
+import tensorflow as tf
+
+# Define two 1-D constant tensors
+A = tf.constant([1, 2, 3, 4])
+B = tf.constant([5, 6, 7, 8])
+
+# Perform element-wise addition of two tensors
+C = tf.add(A, B)
+print(C)  # Output: [6 8 10 12]
+
+# Step 2: Matrix Multiplication using TensorFlow
+
+# Define two 2x2 matrices
+A1 = tf.constant([[1, 2], [4, 5]])
+A2 = tf.constant([[3, 4], [7, 8]])
+
+# Perform matrix multiplication (dot product)
+print(tf.matmul(A1, A2))
+# Output: [[17 20]
+#          [47 60]]
+
+# Step 3: Tensor Reduction – Sum of Elements
+
+# Compute the sum of all elements in matrix A1
+print(tf.reduce_sum(A1))  # Output: 12
+
+# Step 4: Create Numpy Array of Ones
+import numpy as np
+
+# Create a 2x2 NumPy array filled with ones
+array = np.ones([2, 2])
+print(array)  # Output: [[1. 1.]
+              #          [1. 1.]]
+
+# Step 5: Scalar Multiplication with Numpy
+
+# Multiply every element in the array by scalar value 10
+ten = np.multiply(array, 10)
+print(ten)  # Output: [[10. 10.]
+            #          [10. 10.]]
+
+# Step 6: Vector-Vector Dot Product Function
+
+# Define a function to compute dot product between two vectors using a loop
+def vect_vect(x1, x2):
+    total = 0
+    for w, x in zip(x1, x2):  # Loop through pairs of elements
+        total += w * x        # Multiply and accumulate
+    return total
+
+# Generate a random 2-element vector
+w = np.random.rand(2)
+
+# Create a vector of ones with the same shape
+x = np.ones_like(w)
+
+# Compute and print the dot product
+print(vect_vect(w, x))  # Should be approximately equal to sum of elements in w
+
+# Step 7: Matrix-Vector Multiplication using Vector-Vector Dot
+
+# Define a function to perform matrix-vector multiplication using vect_vect
+def m_v(wm, xv):
+    total = []
+    for wv in wm:                 # For each row in the matrix
+        total.append(vect_vect(wv, xv))  # Dot product with vector
+    return total
+
+# Generate a 10x10 matrix with random values
+w = np.random.rand(10, 10)
+
+# Create a vector of ones of length 10
+x = np.ones(10)
+
+# Compute matrix-vector product and print the result
+print(m_v(w, x))  # Output is a 10-element vector
+print(np.sum(w))  # Sum of all elements in the matrix
+
+# Step 8: Matrix-Matrix Row-wise Dot Product
+
+# Define a function to compute row-wise dot product of two matrices
+def mat_mat(x1, x2):
+    total = []
+    for w, x in zip(x1, x2):      # Iterate through corresponding rows
+        total.append(vect_vect(w, x))  # Compute dot product row-wise
+    return total
+
+# Generate random 3x3 matrix
+w = np.random.rand(3, 3)
+
+# Create a 3x3 matrix filled with ones
+x = np.ones([3, 3])
+
+# Perform and print row-wise dot products
+print(mat_mat(w, x))  # Each output element is sum of corresponding row in w
+
+# Step 9: Vector Properties and Debug Print
+import matplotlib.pyplot as plt
+
+# Generate a random 10-element vector
+xv = np.random.rand(10)
+
+# Print the vector
+print(xv)
+
+# Print the type, number of dimensions, and shape of the vector
+print(type(xv), xv.ndim, xv.shape)
+
+# Step 10: Print Element-wise Pairs for Debugging
+
+# Print each element paired with itself (useful for debugging)
+for x1, x2 in zip(xv, xv):
+    print(x1, x2)  # Output: x1 == x2 for all pairs
+
+# Step 11: Fixed Vector-Vector Dot Product Function (Bug Fix)
+
+# Define a corrected version of the dot product function (original had typo)
+def v_v(wv, xv):
+    total = 0
+    for w, x in zip(wv, xv):  # Element-wise multiplication
+        total += w * x
+    return total
+
+# Test v_v with a random vector and ones
+w = np.random.rand(10)
+x = np.ones_like(w)
+
+# Should be approximately equal to sum of elements in w
+print(v_v(w, x))
+print(np.sum(w))
+
+# Step 12: Matrix-Vector Multiplication using v_v
+
+# Define a matrix-vector multiplication using v_v function
+def m_v(wm, xv):
+    total = []
+    for wv in wm:
+        total.append(v_v(wv, xv))  # Compute dot product row-wise
+    return total
+
+# Perform matrix-vector multiplication and print result
+w = np.random.rand(10, 10)
+x = np.ones(10)
+print(m_v(w, x))       # Output: list of 10 dot products (one per row)
+print(np.sum(w))       # Check total sum for verification
+
+# Step 13: Matrix-Matrix Multiplication using v_v and Transpose
+
+# Define a matrix-matrix multiplication using dot product and transpose
+def m_m(wm, xm):
+    total = []
+    for w, x in zip(wm, xm.T):  # Transpose to access columns of xm
+        total.append(v_v(w, x))  # Dot product between rows and columns
+    return total
+
+# Perform matrix-matrix multiplication and print result
+w = np.random.rand(10, 10)
+x = np.ones((10, 10))
+print(m_m(w, x))       # Each output element is a dot product of row and column
+print(np.sum(w))       # Sum of all elements in w for verification
