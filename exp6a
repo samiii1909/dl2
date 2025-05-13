@@ -1,0 +1,53 @@
+import numpy as np
+import pandas as pd
+
+news = pd.read_csv('/content/FakeNewsNet.csv')
+
+print(news.shape)
+print(news.head())
+news.head()
+news.tail()
+#Punctuation
+import string
+string.punctuation
+
+#To remove the punctuation in our dataset
+def remove_punctuation(text):
+   no_punct=[words for words in text if words not in string.punctuation]
+   words_wo_punct=''.join(no_punct)
+   return words_wo_punct
+news['title_wo_punct']=news['title'].apply(lambda x: remove_punctuation(x))
+news.head()
+#Tokenization
+import re
+def tokenize(text):
+   split=re.split("\W+",text)
+   return split
+news['title_wo_punct_split']=news['title_wo_punct'].apply(lambda x: tokenize(x.lower()))
+news.head()
+#Stop words
+# Setup
+#!pip install -q wordcloud
+#import wordcloud
+import nltk
+nltk.download('stopwords')
+stopword = nltk.corpus.stopwords.words('english')
+print(stopword[:11])
+# Stemming
+import nltk
+from nltk.stem import PorterStemmer
+#nltk.download("punkt")
+ps = PorterStemmer()
+print(ps.stem('believe'))
+print(ps.stem('believing'))
+print(ps.stem('believed'))
+print(ps.stem('believes'))
+#Lemmatizing
+from nltk.stem import WordNetLemmatizer
+nltk.download("wordnet")
+nltk.download("omw-1.4")
+wn = WordNetLemmatizer()
+print(wn.lemmatize("believe"))
+print(wn.lemmatize("believing"))
+print(wn.lemmatize("believed"))
+print(wn.lemmatize("believes"))
