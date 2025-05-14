@@ -1,3 +1,5 @@
+E8 :(Develop an algorithm and write a program to predict the stock prices based on historic data using LSTM/GRU)
+
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
